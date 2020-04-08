@@ -97,8 +97,16 @@ def collect_data():
 
     return stroke_fnames, transcriptions, writer_ids
 
+def prepare_data(processed_dir=None):
+    """Wraps the original code inside a __main__ context in a function
 
-if __name__ == '__main__':
+    Parameters
+    ----------
+    processed_dir: str, Default None
+        A path to the folder where processed data will be stored.
+    """
+    _processed_dir = processed_dir or 'data/processed'
+    
     print('traversing data directory...')
     stroke_fnames, transcriptions, writer_ids = collect_data()
 
@@ -124,11 +132,11 @@ if __name__ == '__main__':
 
         w_id[i] = w_id_i
 
-    if not os.path.isdir('data/processed'):
-        os.makedirs('data/processed')
+    if not os.path.isdir(_processed_dir):
+        os.makedirs(_processed_dir)
 
-    np.save('data/processed/x.npy', x[valid_mask])
-    np.save('data/processed/x_len.npy', x_len[valid_mask])
-    np.save('data/processed/c.npy', c[valid_mask])
-    np.save('data/processed/c_len.npy', c_len[valid_mask])
-    np.save('data/processed/w_id.npy', w_id[valid_mask])
+    np.save(f'{_processed_dir}/x.npy', x[valid_mask])
+    np.save(f'{_processed_dir}/x_len.npy', x_len[valid_mask])
+    np.save(f'{_processed_dir}/c.npy', c[valid_mask])
+    np.save(f'{_processed_dir}/c_len.npy', c_len[valid_mask])
+    np.save(f'{_processed_dir}/w_id.npy', w_id[valid_mask])

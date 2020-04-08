@@ -205,11 +205,31 @@ class rnn(TFBaseModel):
         )
         return self.loss
 
+def train_rnn(data_dir=None, epochs=None, checkpoint_epochs=None, optimizer=None):
+    """Wraps the original code inside a __main__ context in a function
 
-if __name__ == '__main__':
-    dr = DataReader(data_dir='data/processed/')
+    Parameters
+    ----------
+    data_dir: str, Default None
+        Points to the folder where processed data is stored
 
-    nn = rnn(
+    epochs: int, Default None
+        Number of training epochs
+
+    checkpoint_epochs: int, Default None
+        Number of minimum epochs before checking network state during training
+
+    optimizer: str, Default None
+        Network optimizer. Available options: ['rms']
+    """
+    _data_dir = data_dir or 'data/processed/'
+    _epochs = epochs or 100_000
+    _checkpoint_epochs = checkpoint_epochs or 2000
+    _optimizer = optimizer or 'rms'
+
+    dr = DataReader(data_dir=_data_dir)
+
+    _net = rnn(
         reader=dr,
         log_dir='logs',
         checkpoint_dir='checkpoints',
@@ -219,17 +239,20 @@ if __name__ == '__main__':
         patiences=[1500, 1000, 500],
         beta1_decays=[.9, .9, .9],
         validation_batch_size=32,
-        optimizer='rms',
-        num_training_steps=100000,
+        optimizer=_optimizer,
+        num_training_steps=_epochs,
         warm_start_init_step=0,
         regularization_constant=0.0,
         keep_prob=1.0,
         enable_parameter_averaging=False,
-        min_steps_to_checkpoint=2000,
+        min_steps_to_checkpoint=_checkpoint_epochs,
         log_interval=20,
         grad_clip=10,
         lstm_size=400,
         output_mixture_components=20,
         attention_mixture_components=10
     )
-    nn.fit()
+
+    print("Starting NN fitting process!")
+    _net.fit()
+    
