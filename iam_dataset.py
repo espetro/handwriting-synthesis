@@ -28,7 +28,7 @@ class IAMDataset():
     """
 
     def __init__(self, credentials=None, root=None):
-        if credentials is None or type(credentials) is not None:
+        if (credentials is None) or (type(credentials) is not tuple):
             raise ValueError("Credentials must be a tuple '(username, password')")
 
         self._credentials = credentials
@@ -42,10 +42,6 @@ class IAMDataset():
 
         if not os.path.isdir(self._root):
             os.makedirs(self._root)
-
-        
-        # data = self._get_data()
-        # super(IAMDataset, self).__init__(data)
 
     @staticmethod
     def _reporthook(count, block_size, total_size):
