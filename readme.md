@@ -4,6 +4,7 @@ Implementation of the handwriting synthesis experiments in the paper <a href="ht
 
 Web demo is available <a href="https://seanvasquez.com/handwriting-generation/">here</a>.
 
+
 ## Usage
 ```python
 lines = [
@@ -32,6 +33,8 @@ hand.write(
 Currently, the `Hand` class must be imported from `demo.py`.  If someone would like to package this project to make it more usable, please [contribute](#contribute).
 
 A pretrained model is included, but if you'd like to train your own, read <a href='https://github.com/sjvasquez/handwriting-synthesis/tree/master/data/raw'>these instructions</a>.
+
+You can find the required packages in `requirements`. As of April 2020, Tensorflow 1.6.x is not in supported in the main Tensorflow channel. You can get still it from the [PyPI wheels](https://pypi.org/project/tensorflow-gpu/1.6.0/#files).
 
 ## Demonstrations
 Below are a few hundred samples from the model, including some samples demonstrating the effect of priming and biasing the model.  Loosely speaking, biasing controls the neatness of the samples and priming controls the style of the samples. The code for these demonstrations can be found in `demo.py`.
