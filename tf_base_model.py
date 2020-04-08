@@ -13,7 +13,6 @@ from tf_utils import shape
 
 
 class TFBaseModel(object):
-
     """Interface containing some boilerplate code for training tensorflow models.
 
     Subclassing models must implement self.calculate_loss(), which returns a tensor for the batch loss.
@@ -21,32 +20,64 @@ class TFBaseModel(object):
     subclasses are mainly responsible for building the computational graph beginning with the placeholders
     and ending with the loss tensor.
 
-    Args:
-        reader: Class with attributes train_batch_generator, val_batch_generator, and test_batch_generator
-            that yield dictionaries mapping tf.placeholder names (as strings) to batch data (numpy arrays).
-        batch_size: Minibatch size.
-        learning_rate: Learning rate.
-        optimizer: 'rms' for RMSProp, 'adam' for Adam, 'sgd' for SGD
-        grad_clip: Clip gradients elementwise to have norm at most equal to grad_clip.
-        regularization_constant:  Regularization constant applied to all trainable parameters.
-        keep_prob: 1 - p, where p is the dropout probability
-        early_stopping_steps:  Number of steps to continue training after validation loss has
-            stopped decreasing.
-        warm_start_init_step:  If nonzero, model will resume training a restored model beginning
-            at warm_start_init_step.
-        num_restarts:  After validation loss plateaus, the best checkpoint will be restored and the
-            learning rate will be halved.  This process will repeat num_restarts times.
-        enable_parameter_averaging:  If true, model saves exponential weighted averages of parameters
-            to separate checkpoint file.
-        min_steps_to_checkpoint:  Model only saves after min_steps_to_checkpoint training steps
-            have passed.
-        log_interval:  Train and validation accuracies are logged every log_interval training steps.
-        loss_averaging_window:  Train/validation losses are averaged over the last loss_averaging_window
-            training steps.
-        num_validation_batches:  Number of batches to be used in validation evaluation at each step.
-        log_dir: Directory where logs are written.
-        checkpoint_dir: Directory where checkpoints are saved.
-        prediction_dir: Directory where predictions/outputs are saved.
+    Parameters
+    ----------
+    reader: Any
+        Class with attributes train_batch_generator, val_batch_generator, and test_batch_generator
+        that yield dictionaries mapping tf.placeholder names (as strings) to batch data (numpy arrays).
+
+    batch_size: List[int]
+        Minibatch size.
+    
+    learning_rate: List[float]
+        Learning rate.
+
+    optimizer: str
+        'rms' for RMSProp, 'adam' for Adam, 'sgd' for SGD
+        Available options: ['rms', 'adam', 'sgd']
+
+    grad_clip: Any
+        Clip gradients elementwise to have norm at most equal to grad_clip.
+
+    regularization_constant: float
+        Regularization constant applied to all trainable parameters.
+
+    keep_prob: float
+        1 - p, where p is the dropout probability
+
+    early_stopping_steps: int
+        Number of steps to continue training after validation loss has stopped decreasing.
+
+    warm_start_init_step: int
+        If nonzero, model will resume training a restored model beginning at warm_start_init_step.
+
+    num_restarts: Any
+        After validation loss plateaus, the best checkpoint will be restored and the learning rate will be halved. 
+        This process will repeat num_restarts times.
+
+    enable_parameter_averaging: bool
+        If true, model saves exponential weighted averages of parameters to separate checkpoint file.
+        
+    min_steps_to_checkpoint: int
+        Model only saves after min_steps_to_checkpoint training steps have passed.
+
+    log_interval: Any
+        Train and validation accuracies are logged every log_interval training steps.
+
+    loss_averaging_window:
+        Train/validation losses are averaged over the last loss_averaging_window training steps.
+
+    num_validation_batches: int
+        Number of batches to be used in validation evaluation at each step.
+
+    log_dir: str
+        Directory where logs are written.
+
+    checkpoint_dir: str
+        Directory where checkpoints are saved.
+
+    prediction_dir: str
+        Directory where predictions/outputs are saved.
     """
 
     def __init__(
@@ -73,7 +104,9 @@ class TFBaseModel(object):
         prediction_dir='predictions',
     ):
 
-        assert len(batch_sizes) == len(learning_rates) == len(patiences)
+        __error_message = "Length of batch sizes, learning rates and patiences are not equal"
+        assert len(batch_sizes) == len(learning_rates) == len(patiences), __error_message
+
         self.batch_sizes = batch_sizes
         self.learning_rates = learning_rates
         self.beta1_decays = beta1_decays
@@ -99,6 +132,7 @@ class TFBaseModel(object):
         self.logging_level = logging_level
         self.prediction_dir = prediction_dir
         self.checkpoint_dir = checkpoint_dir
+
         if self.enable_parameter_averaging:
             self.checkpoint_dir_averaged = checkpoint_dir + '_avg'
 
@@ -160,7 +194,7 @@ class TFBaseModel(object):
                     val_feed_dict.update({self.is_training: False})
 
                 results = self.session.run(
-                    fetches=[self.loss] + self.metrics.values(),
+                    fetches=[self.loss] + list(self.metrics.values()),
                     feed_dict=val_feed_dict
                 )
                 val_loss = results[0]

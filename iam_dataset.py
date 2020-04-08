@@ -2,6 +2,8 @@
 # https://github.com/awslabs/handwritten-text-recognition-for-apache-mxnet
 # Modified by Quino Terrasa <quino.terrasa+dev@gmail.com>
 
+from urllib import request
+
 import os
 import tarfile
 import urllib
@@ -28,7 +30,7 @@ class IAMDataset():
     """
 
     def __init__(self, credentials=None, root=None):
-        if (credentials is None) or (type(credentials) is not tuple):
+        if credentials is None:
             raise ValueError("Credentials must be a tuple '(username, password')")
 
         self._credentials = credentials
@@ -38,7 +40,6 @@ class IAMDataset():
         filenames = ["ascii-all", "lineStrokes-all", "original-xml-all"]
 
         self._data_urls = [url_partial.format(fname=fname) for fname in filenames]
-        self._output_dirs = [os.path.join(self._root, _dir) for _dir in ["ascii", "lineStrokes", "original"]]
 
         if not os.path.isdir(self._root):
             os.makedirs(self._root)
@@ -115,10 +116,10 @@ class IAMDataset():
     def download_data(self):
         ''' Helper function to download and extract the data of the IAM database
         '''
-        for url, output_dir in zip(self._data_urls, self._output_dirs):
+        for url in self._data_urls:
             logging.info("Downloding data from {}".format(url))
             archive_file = os.path.join(self._root, os.path.basename(url))
             if not os.path.isfile(archive_file):
                 self._download(url)
-                self._extract(archive_file, archive_type="tar.gz", output_dir=output_dir)
+                self._extract(archive_file, archive_type="tar.gz", output_dir=self._root)
     

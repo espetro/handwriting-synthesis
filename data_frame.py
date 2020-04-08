@@ -42,9 +42,9 @@ class DataFrame(object):
     def train_test_split(self, train_size, random_state=np.random.randint(1000), stratify=None):
         train_idx, test_idx = train_test_split(
             self.idx,
+            test_size=1-train_size,
             train_size=train_size,
-            random_state=random_state,
-            stratify=stratify
+            random_state=random_state
         )
         train_df = DataFrame(copy.copy(self.columns), [mat[train_idx] for mat in self.data])
         test_df = DataFrame(copy.copy(self.columns), [mat[test_idx] for mat in self.data])

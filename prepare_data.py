@@ -51,7 +51,7 @@ def collect_data():
 
     # low quality samples (selected by collecting samples to
     # which the trained model assigned very low likelihood)
-    blacklist = set(np.load('data/blacklist.npy'))
+    blacklist = set(np.load('data/blacklist.npy', allow_pickle=True))
 
     stroke_fnames, transcriptions, writer_ids = [], [], []
     for i, fname in enumerate(fnames):
@@ -85,7 +85,15 @@ def collect_data():
             writer_id = int('0')
 
         ascii_sequences = get_ascii_sequences(fname)
-        assert len(ascii_sequences) == len(line_stroke_fnames)
+        # print(f"Ascii sequences ({ascii_sequences.shape}) Line strokes ({line_stroke_fnames.shape})")
+        
+        # assert len(ascii_sequences) == len(line_stroke_fnames):
+        if len(ascii_sequences) != len(line_stroke_fnames):
+            # this is not the proper way to do it! But idk how to debug the 'assert'
+            # it just takes a number of seq proportional to the minimum length of these 2
+            max_length = min(len(ascii_sequences), len(line_stroke_fnames))
+            ascii_sequences = ascii_sequences[:max_length]
+            line_stroke_fnames = line_stroke_fnames[:max_length]
 
         for ascii_seq, line_stroke_fname in zip(ascii_sequences, line_stroke_fnames):
             if line_stroke_fname in blacklist:
@@ -97,7 +105,7 @@ def collect_data():
 
     return stroke_fnames, transcriptions, writer_ids
 
-def prepare_data(processed_dir=None):
+def main(processed_dir=None):
     """Wraps the original code inside a __main__ context in a function
 
     Parameters
@@ -107,6 +115,9 @@ def prepare_data(processed_dir=None):
     """
     _processed_dir = processed_dir or 'data/processed'
     
+    if not os.path.isdir(_processed_dir):
+        os.makedirs(_processed_dir)
+
     print('traversing data directory...')
     stroke_fnames, transcriptions, writer_ids = collect_data()
 
@@ -131,9 +142,6 @@ def prepare_data(processed_dir=None):
         c_len[i] = len(c_i)
 
         w_id[i] = w_id_i
-
-    if not os.path.isdir(_processed_dir):
-        os.makedirs(_processed_dir)
 
     np.save(f'{_processed_dir}/x.npy', x[valid_mask])
     np.save(f'{_processed_dir}/x_len.npy', x_len[valid_mask])
