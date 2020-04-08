@@ -109,7 +109,7 @@ class IAMDataset():
         urllib.request.urlretrieve(
             url,
             reporthook=self._reporthook,
-            filename=os.path.join(self._root, filename)
+            filename=os.path.join(self._root, "..", filename)
         )[0]
         sys.stdout.write("\n")
             
@@ -118,8 +118,9 @@ class IAMDataset():
         '''
         for url in self._data_urls:
             logging.info("Downloding data from {}".format(url))
-            archive_file = os.path.join(self._root, os.path.basename(url))
+            archive_file = os.path.join(self._root, "..", os.path.basename(url))
             if not os.path.isfile(archive_file):
                 self._download(url)
-                self._extract(archive_file, archive_type="tar.gz", output_dir=self._root)
+                self._extract(archive_file, archive_type="tar.gz", output_dir="")
+                # 'output_dir' is kind of confusing, as it is appended to self._root path
     
